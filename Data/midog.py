@@ -3,7 +3,7 @@ from typing import List
 
 import cv2
 import numpy
-
+import tqdm
 
 from detectron2.structures import BoxMode
 
@@ -21,11 +21,15 @@ def get_midog_yolo_dicts(dataset_root: str) -> List[dict]:
     assert os.path.exists(images_root), f"images root {images_root} does not exists!"
     assert os.path.exists(labels_root), f"labels root {labels_root} does not exists!"
 
+    cache_path = os.path.join(dataset_root, "cache_midog.npy")
+    if os.path.exists(cache_path):
+        return numpy.load(cache_path)
+
     # label paths
     label_file_names = os.listdir(labels_root)
 
     return_list = []
-    for image_id, label_file_name in enumerate(label_file_names):
+    for image_id, label_file_name in tqdm.tqdm(enumerate(label_file_names), total=len(label_file_names)):
         assert label_file_name[-4:] == ".txt"
         label_path = os.path.join(labels_root, label_file_name)
 
@@ -70,6 +74,9 @@ def get_midog_yolo_dicts(dataset_root: str) -> List[dict]:
             "width": width,
             "annotations": objects
         })
+
+    # save cache
+    numpy.save(cache_path, return_list)
 
     return return_list
 

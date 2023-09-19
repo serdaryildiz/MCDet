@@ -21,7 +21,8 @@ from detectron2.evaluation import (
     verify_results,
 )
 from detectron2.modeling import GeneralizedRCNNWithTTA
-
+import torch.multiprocessing
+torch.multiprocessing.set_sharing_strategy('file_system')
 
 def build_evaluator(cfg, dataset_name, output_folder=None):
     if output_folder is None:
