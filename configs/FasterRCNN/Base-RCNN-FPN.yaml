@@ -34,8 +34,11 @@ MODEL:
 DATASETS:
   TRAIN: ("midog_yolo_train",)
   TEST: ("midog_yolo_val",)
-  MIDOG_TRAIN_DATASET_ROOT: "/media/serdar/BackUp/Datasets/MIDOG2022_Dataset/Samples/val"
-  MIDOG_TEST_DATASET_ROOT: "/media/serdar/BackUp/Datasets/MIDOG2022_Dataset/Samples/val"
+  MIDOG_TRAIN_DATASET_ROOT: "/home/boxx/Masaüstü/Code_trials/MIDOG2022_Dataset/MIDOG2022_YOLO/patches/train"
+  MIDOG_TEST_DATASET_ROOT: "/home/boxx/Masaüstü/Code_trials/MIDOG2022_Dataset/MIDOG2022_YOLO/patches/val"
+
+DATALOADER:
+  NUM_WORKERS: 4
 
 SOLVER:
   IMS_PER_BATCH: 16
@@ -48,6 +51,7 @@ TEST:
 
 INPUT:
   MIN_SIZE_TRAIN: (512,)  # srdr
+  MIN_SIZE_TEST: 512
 
 VERSION: 2
 
