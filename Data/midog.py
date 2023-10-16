@@ -23,7 +23,7 @@ def get_midog_yolo_dicts(dataset_root: str) -> List[dict]:
 
     cache_path = os.path.join(dataset_root, "cache_midog.npy")
     if os.path.exists(cache_path):
-        return numpy.load(cache_path)
+        return numpy.load(cache_path, allow_pickle=True)
 
     # label paths
     label_file_names = os.listdir(labels_root)
