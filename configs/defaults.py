@@ -111,6 +111,8 @@ _C.DATASETS.PRECOMPUTED_PROPOSAL_TOPK_TEST = 1000
 # ----------------------------------------------------------------serdaryildiz #
 _C.DATASETS.MIDOG_TRAIN_DATASET_ROOT = None
 _C.DATASETS.MIDOG_TEST_DATASET_ROOT = None
+_C.DATASETS.MONUSEG_TRAIN_DATASET_ROOT = None
+_C.DATASETS.MONUSEG_TEST_DATASET_ROOT = None
 # ----------------------------------------------------------------serdaryildiz #
 
 

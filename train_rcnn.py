@@ -7,7 +7,7 @@ from collections import OrderedDict
 from fvcore.common.checkpoint import Checkpointer
 
 import detectron2.utils.comm as comm
-from Data import get_midog_yolo_dicts
+from Data import get_midog_yolo_dicts, get_monuseg_dicts
 from detectron2.checkpoint import DetectionCheckpointer
 from configs import get_cfg
 # from detectron2.config import get_cfg
@@ -115,12 +115,12 @@ class BestCheckpointer(HookBase):
     """
 
     def __init__(
-        self,
-        eval_period: int,
-        checkpointer: Checkpointer,
-        val_metric: str,
-        mode: str = "max",
-        file_prefix: str = "model_best",
+            self,
+            eval_period: int,
+            checkpointer: Checkpointer,
+            val_metric: str,
+            mode: str = "max",
+            file_prefix: str = "model_best",
     ) -> None:
         """
         Args:
@@ -191,9 +191,9 @@ class BestCheckpointer(HookBase):
         # same conditions as `EvalHook`
         next_iter = self.trainer.iter + 1
         if (
-            self._period > 0
-            and next_iter % self._period == 0
-            and next_iter != self.trainer.max_iter
+                self._period > 0
+                and next_iter % self._period == 0
+                and next_iter != self.trainer.max_iter
         ):
             self._best_checking()
 
@@ -202,19 +202,39 @@ class BestCheckpointer(HookBase):
         if self.trainer.iter + 1 >= self.trainer.max_iter:
             self._best_checking()
 
+
+def register_datasets(cfg):
+    if cfg.DATASETS.MIDOG_TRAIN_DATASET_ROOT is not None:
+        TRAIN_DATASET_ROOT = cfg.DATASETS.MIDOG_TRAIN_DATASET_ROOT
+        DatasetCatalog.register("midog_yolo_train",
+                                lambda dataset_path=TRAIN_DATASET_ROOT: get_midog_yolo_dicts(dataset_path))
+        MetadataCatalog.get("midog_yolo_train").set(thing_classes=["mitosis", "hard-negative"])
+        MetadataCatalog.get("midog_yolo_train").set(evaluator_type="coco")
+
+    if cfg.DATASETS.MIDOG_TEST_DATASET_ROOT is not None:
+        TEST_DATASET_ROOT = cfg.DATASETS.MIDOG_TEST_DATASET_ROOT
+        DatasetCatalog.register("midog_yolo_val", lambda dataset_path=TEST_DATASET_ROOT: get_midog_yolo_dicts(dataset_path))
+        MetadataCatalog.get("midog_yolo_val").set(thing_classes=["mitosis", "hard-negative"])
+        MetadataCatalog.get("midog_yolo_val").set(evaluator_type="coco")
+
+    if cfg.DATASETS.MONUSEG_TRAIN_DATASET_ROOT is not None:
+        TRAIN_DATASET_ROOT = cfg.DATASETS.MONUSEG_TRAIN_DATASET_ROOT
+        DatasetCatalog.register("monuseg_train", lambda dataset_path=TRAIN_DATASET_ROOT: get_monuseg_dicts(dataset_path))
+        MetadataCatalog.get("monuseg_train").set(thing_classes=["nuclei"])
+        MetadataCatalog.get("monuseg_train").set(evaluator_type="coco")
+
+    if cfg.DATASETS.MONUSEG_TEST_DATASET_ROOT is not None:
+        TEST_DATASET_ROOT = cfg.DATASETS.MONUSEG_TEST_DATASET_ROOT
+        DatasetCatalog.register("monuseg_val", lambda dataset_path=TEST_DATASET_ROOT: get_monuseg_dicts(dataset_path))
+        MetadataCatalog.get("monuseg_val").set(thing_classes=["nuclei"])
+        MetadataCatalog.get("monuseg_val").set(evaluator_type="coco")
+
+    return
+
+
 def main(args):
     cfg = setup(args)
-
-    TRAIN_DATASET_ROOT = cfg.DATASETS.MIDOG_TRAIN_DATASET_ROOT
-    DatasetCatalog.register("midog_yolo_train",
-                            lambda dataset_path=TRAIN_DATASET_ROOT: get_midog_yolo_dicts(dataset_path))
-    MetadataCatalog.get("midog_yolo_train").set(thing_classes=["mitosis", "hard-negative"])
-    MetadataCatalog.get("midog_yolo_train").set(evaluator_type="coco")
-
-    TEST_DATASET_ROOT = cfg.DATASETS.MIDOG_TEST_DATASET_ROOT
-    DatasetCatalog.register("midog_yolo_val", lambda dataset_path=TEST_DATASET_ROOT: get_midog_yolo_dicts(dataset_path))
-    MetadataCatalog.get("midog_yolo_val").set(thing_classes=["mitosis", "hard-negative"])
-    MetadataCatalog.get("midog_yolo_val").set(evaluator_type="coco")
+    register_datasets(cfg)
 
     if args.eval_only:
         model = Trainer.build_model(cfg)

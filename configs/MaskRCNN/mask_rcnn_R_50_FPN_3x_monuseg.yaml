@@ -1,0 +1,33 @@
+_BASE_: "../Base-RCNN-FPN.yaml"
+MODEL:
+  WEIGHTS: "detectron2://ImageNetPretrained/MSRA/R-50.pkl"
+  MASK_ON: True
+  RESNETS:
+    DEPTH: 50
+
+  ROI_HEADS:
+    NUM_CLASSES: 1 # srdr
+
+INPUT:
+  MIN_SIZE_TRAIN: (1000,)  # srdr
+  MIN_SIZE_TEST: 1000
+  MASK_FORMAT: "polygon"
+
+SOLVER:
+  STEPS: (21000, 25000)
+  MAX_ITER: 27000
+  IMS_PER_BATCH: 8
+
+DATASETS:
+  TRAIN: ("monuseg_train",)
+  TEST: ("monuseg_val",)
+  MONUSEG_TRAIN_DATASET_ROOT: "/media/serdar/Works2T/Datasets/Nuclei/MoNuSeg2018/Train"
+  MONUSEG_TEST_DATASET_ROOT: "/media/serdar/Works2T/Datasets/Nuclei/MoNuSeg2018/Test"
+
+TEST:
+  EVAL_PERIOD: 1000
+
+DATALOADER:
+  NUM_WORKERS: 4
+
+OUTPUT_DIR: ./mask_rcnn_R_50_FPN_3x_manuseg

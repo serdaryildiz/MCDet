@@ -34,8 +34,8 @@ MODEL:
 DATASETS:
   TRAIN: ("midog_yolo_train",)
   TEST: ("midog_yolo_val",)
-  MIDOG_TRAIN_DATASET_ROOT: "/home/boxx/Masaüstü/Code_trials/MIDOG2022_Dataset/MIDOG2022_YOLO/patches/train"
-  MIDOG_TEST_DATASET_ROOT: "/home/boxx/Masaüstü/Code_trials/MIDOG2022_Dataset/MIDOG2022_YOLO/patches/val"
+  MIDOG_TRAIN_DATASET_ROOT: ~
+  MIDOG_TEST_DATASET_ROOT: ~
 
 DATALOADER:
   NUM_WORKERS: 4
@@ -49,9 +49,9 @@ SOLVER:
 TEST:
   EVAL_PERIOD: 10
 
-INPUT:
-  MIN_SIZE_TRAIN: (512,)  # srdr
-  MIN_SIZE_TEST: 512
+#INPUT:
+#  MIN_SIZE_TRAIN: (512,)  # srdr
+#  MIN_SIZE_TEST: 512
 
 VERSION: 2
 
