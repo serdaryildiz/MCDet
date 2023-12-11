@@ -7,6 +7,7 @@ MODEL:
 
   ROI_HEADS:
     NUM_CLASSES: 1 # srdr
+    SCORE_THRESH_TEST: 0.01
 
 INPUT:
   MIN_SIZE_TRAIN: (1000,)  # srdr
@@ -25,9 +26,13 @@ DATASETS:
   MONUSEG_TEST_DATASET_ROOT: "/media/serdar/Works2T/Datasets/Nuclei/MoNuSeg2018/Test"
 
 TEST:
+  AUG:
+    ENABLED: False
   EVAL_PERIOD: 1000
+  DETECTIONS_PER_IMAGE: 1000
+
 
 DATALOADER:
   NUM_WORKERS: 4
 
-OUTPUT_DIR: ./mask_rcnn_R_50_FPN_3x_manuseg
+OUTPUT_DIR: ./mask_rcnn_R_50_FPN_3x_manuseg_V4

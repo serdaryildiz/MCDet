@@ -15,16 +15,19 @@ from detectron2.utils.visualizer import Visualizer, ColorMode, _create_text_labe
 classnames = ["mitosis", "hard-negative"]
 
 
-def setup(args):
-    """
-    Create configs and perform basic setups.
-    """
+def setup_cfg(args):
+    # load config from file and command-line arguments
     cfg = get_cfg()
-
+    # To use demo for Panoptic-DeepLab, please uncomment the following two lines.
+    # from detectron2.projects.panoptic_deeplab import add_panoptic_deeplab_config  # noqa
+    # add_panoptic_deeplab_config(cfg)
     cfg.merge_from_file(args.config_file)
     cfg.merge_from_list(args.opts)
+    # Set score_threshold for builtin models
+    cfg.MODEL.RETINANET.SCORE_THRESH_TEST = args.confidence_threshold
+    cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = args.confidence_threshold
+    cfg.MODEL.PANOPTIC_FPN.COMBINE.INSTANCES_CONFIDENCE_THRESH = args.confidence_threshold
     cfg.freeze()
-    default_setup(cfg, args)
     return cfg
 
 
@@ -52,7 +55,7 @@ def get_parser():
     parser.add_argument(
         "--confidence-threshold",
         type=float,
-        default=0.5,
+        default=0.01,
         help="Minimum score for instance predictions to be shown",
     )
     parser.add_argument(
@@ -107,7 +110,8 @@ class VisualizationDemo(object):
 
         vis_output = visualizer.overlay_instances(
             labels=labels,
-            boxes=instances.get("bboxes"),
+            boxes=instances.get("pred_boxes"),
+            masks=instances.get("pred_masks"),
             assigned_colors=assigned_colors,
             alpha=0.1
         )
@@ -115,7 +119,7 @@ class VisualizationDemo(object):
 
 
 def demo(args):
-    cfg = setup(args)
+    cfg = setup_cfg(args)
 
     demo = VisualizationDemo(cfg)
 

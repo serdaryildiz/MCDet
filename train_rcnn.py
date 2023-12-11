@@ -24,7 +24,7 @@ from detectron2.evaluation import (
     SemSegEvaluator,
     verify_results,
 )
-from detectron2.modeling import GeneralizedRCNNWithTTA
+from detectron2.modeling import GeneralizedRCNNWithTTA, GeneralizedRCNN
 import torch.multiprocessing
 
 torch.multiprocessing.set_sharing_strategy('file_system')
@@ -213,13 +213,15 @@ def register_datasets(cfg):
 
     if cfg.DATASETS.MIDOG_TEST_DATASET_ROOT is not None:
         TEST_DATASET_ROOT = cfg.DATASETS.MIDOG_TEST_DATASET_ROOT
-        DatasetCatalog.register("midog_yolo_val", lambda dataset_path=TEST_DATASET_ROOT: get_midog_yolo_dicts(dataset_path))
+        DatasetCatalog.register("midog_yolo_val",
+                                lambda dataset_path=TEST_DATASET_ROOT: get_midog_yolo_dicts(dataset_path))
         MetadataCatalog.get("midog_yolo_val").set(thing_classes=["mitosis", "hard-negative"])
         MetadataCatalog.get("midog_yolo_val").set(evaluator_type="coco")
 
     if cfg.DATASETS.MONUSEG_TRAIN_DATASET_ROOT is not None:
         TRAIN_DATASET_ROOT = cfg.DATASETS.MONUSEG_TRAIN_DATASET_ROOT
-        DatasetCatalog.register("monuseg_train", lambda dataset_path=TRAIN_DATASET_ROOT: get_monuseg_dicts(dataset_path))
+        DatasetCatalog.register("monuseg_train",
+                                lambda dataset_path=TRAIN_DATASET_ROOT: get_monuseg_dicts(dataset_path))
         MetadataCatalog.get("monuseg_train").set(thing_classes=["nuclei"])
         MetadataCatalog.get("monuseg_train").set(evaluator_type="coco")
 
@@ -250,14 +252,15 @@ def main(args):
 
     trainer = Trainer(cfg)
     trainer.resume_or_load(resume=args.resume)
-    trainer.register_hooks(
-        [hooks.EvalHook(cfg.TEST.EVAL_PERIOD, lambda: trainer.test_with_TTA(cfg, trainer.model)),
-         BestCheckpointer(cfg.TEST.EVAL_PERIOD, trainer.checkpointer, "bbox/AP50", mode="max")]
-    )
 
     if cfg.TEST.AUG.ENABLED:
         trainer.register_hooks(
             [hooks.EvalHook(cfg.TEST.EVAL_PERIOD, lambda: trainer.test_with_TTA(cfg, trainer.model)),
+             BestCheckpointer(cfg.TEST.EVAL_PERIOD, trainer.checkpointer, "bbox/AP50", mode="max")]
+        )
+    else:
+        trainer.register_hooks(
+            [hooks.EvalHook(cfg.TEST.EVAL_PERIOD, lambda: trainer.test(cfg, trainer.model)),
              BestCheckpointer(cfg.TEST.EVAL_PERIOD, trainer.checkpointer, "bbox/AP50", mode="max")]
         )
     return trainer.train()
